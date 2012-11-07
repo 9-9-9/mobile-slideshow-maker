@@ -58,7 +58,7 @@ $("form").submit(function() {
       if (--remaining == 0) spinner.stop();
       if (err)
         return alert("ERROR " + err);
-      var metadata = model.getState().images[id];
+      var metadata = model.getMetadata()[id];
       grid.addItemToGrid(id.toString(), metadata);
     });
   });
@@ -67,10 +67,9 @@ $("form").submit(function() {
 });
 
 function initUI() {
-  var state = model.getState();
   var dataSource = {
     getItemList: function(callback) {
-      callback(state.images);
+      callback(model.getMetadata());
     },
     openItem: function(itemID) {
       

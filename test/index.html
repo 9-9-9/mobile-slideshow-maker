@@ -64,9 +64,9 @@
         });
       });
       
-      modelTest("getState() returns state", function() {
-        deepEqual(this.getState(), {images: {}}, "works once");
-        deepEqual(this.getState(), {images: {}}, "works twice");
+      modelTest("getMetadata() returns metadata", function() {
+        deepEqual(this.getMetadata(), {}, "works once");
+        deepEqual(this.getMetadata(), {}, "works twice");
         start();
       });
       
@@ -91,7 +91,7 @@
           var blob = new Blob([req.response], {type: "image/jpeg"});
           model.addImage(blob, function(err, id) {
             ok(!err);
-            var metadata = model.getState().images[id];
+            var metadata = model.getMetadata()[id];
             equal(metadata.id, id, "id is correct");
             equal(metadata.itemImgURL.indexOf("data:image/"), 0,
                   "itemImgURL is valid");
