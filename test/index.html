@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Mobile Slideshow Maker Test Suite</title>
+    <link rel="stylesheet" href="qunit.css">
+  </head>
+
+  <body>
+    <h1  id="qunit-header">Mobile Slideshow Maker Test Suite</h1>
+    <h2  id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2  id="qunit-userAgent"></h2>
+    <ol  id="qunit-tests"></ol>
+    <div id="qunit-fixture"></div>
+
+    <script src="qunit.js"></script>
+    <script src="../vendor/IndexedDBShim.min.js"></script>
+    <script src="../data-uri-store.js"></script>
+    <script>
+    QUnit.config.testTimeout = 5000;
+    
+    (function() {
+      var store;
+      
+      module("data-uri-store", {
+        setup: function() {
+          stop();
+          DataURIStore.destroy("test_stuff", function(err) {
+            ok(!err);
+            DataURIStore.create("test_stuff", function(err, newStore) {
+              store = newStore;
+              start();
+            });
+          });
+        },
+        teardown: function() {
+          store.done();
+          stop();
+          DataURIStore.destroy("test_stuff", function(err) {
+            ok(!err);
+            start();
+          });
+        }
+      });
+
+      asyncTest("delete() works", function() {
+        store.put("data:text/plain,hi", function(err, id) {
+          ok(!err);
+          store.delete(id, function(err) {
+            ok(!err);
+            store.get(id, function(err, dataURL) {
+              ok(!err && dataURL === null);
+              start();
+            });
+          });
+        });
+      });
+      
+      asyncTest("get() passes null on nonexistent key", function() {
+        store.get(534, function(err, dataURL) {
+          ok(!err);
+          ok(dataURL === null);
+          start();
+        });
+      });
+
+      asyncTest("put() works w/ tiny data", function() {
+        store.put("data:text/plain,hi", function(err, id) {
+          ok(!err);
+          equal(typeof(id), "number");
+          store.get(id, function(err, dataURL) {
+            ok(!err);
+            equal(dataURL, "data:text/plain,hi");
+            start();
+          });
+        });
+      });
+      
+      asyncTest("put() works w/ big data", function() {
+        var parts = [];
+        for (var i = 0; i < 1000000; i++)
+          parts.push('hi');
+        var source = "data:text/plain," + parts.join('.');
+        ok(source.length > 3000000, "data URL is at least 3mb");
+        store.put(source, function(err, id) {
+          ok(!err);
+          equal(typeof(id), "number");
+          store.get(id, function(err, dataURL) {
+            ok(!err);
+            equal(dataURL, source);
+            start();
+          });
+        });
+      });
+    })();
+    
+    if (location.search.match(/externalreporter=1/))
+      document.write('<script src="/externalreporter.js"></' + 'script>');
+    </script>
+  </body>
+</html>

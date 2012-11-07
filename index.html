@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Hello</title>
+<p>Sup.</p>
+<form>
+  <input type="file" id="input-file">
+  <button type="submit" style="display: none">Add Picture</button>
+</form>
+<script src="vendor/IndexedDBShim.min.js"></script>
+<script src="vendor/zepto.min.js"></script>
+<script src="data-uri-store.js"></script>
+<script>
+$("#input-file").change(function() {
+  $("form").submit();
+});
+
+$("form").submit(function() {
+  resizeAndUploadImage($("#input-file")[0].files[0]);
+  return false;
+});
+
+function resizeAndUploadImage(file) {
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    var dataURI = event.target.result;
+    console.log("data is " + dataURI.length + " characters");
+  };
+  console.log("starting to read...");
+  reader.readAsDataURL(file);
+}
+</script>
