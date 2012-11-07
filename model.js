@@ -74,6 +74,7 @@ function MSM_Model(options) {
             if (err)
               return cb(err);
             var state = loadState();
+            metadata.id = id;
             state.images[id] = metadata;
             saveState(state);
             cb(null, id);

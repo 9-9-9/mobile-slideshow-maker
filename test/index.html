@@ -84,6 +84,7 @@
           var blob = new Blob([req.response], {type: "image/jpeg"});
           model.addImage(blob, function(err, id) {
             var metadata = model.getState().images[id];
+            equal(metadata.id, id, "id is correct");
             equal(metadata.itemImgURL.indexOf("data:image/"), 0,
                   "itemImgURL is valid");
             equal(metadata.orientation, 6, "orientation is correct");
