@@ -16,6 +16,7 @@
 
     <script src="qunit.js"></script>
     <script src="../vendor/IndexedDBShim.min.js"></script>
+    <script src="../vendor/exif.js"></script>
     <script src="../data-uri-store.js"></script>
     <script src="../utils.js"></script>
     <script>
@@ -23,6 +24,20 @@
     
     (function() {
       module("utils");
+      
+      asyncTest("getExifInfo() works", function() {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'cart.jpg');
+        req.responseType = 'arraybuffer';
+        req.onload = function() {
+          var exif = Utils.getExifInfo(req.response);
+          //console.log(JSON.stringify(exif, null, 2));
+          equal(exif.Orientation, 6);
+          equal(exif.Model, "iPhone 4");
+          start();
+        };
+        req.send(null);
+      });
       
       asyncTest("makeSquareThumbnail() works", function() {
         var img = document.createElement("img");
