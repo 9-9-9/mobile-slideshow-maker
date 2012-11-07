@@ -17,8 +17,35 @@
     <script src="qunit.js"></script>
     <script src="../vendor/IndexedDBShim.min.js"></script>
     <script src="../data-uri-store.js"></script>
+    <script src="../utils.js"></script>
     <script>
     QUnit.config.testTimeout = 5000;
+    
+    (function() {
+      module("utils");
+      
+      asyncTest("makeSquareThumbnail() works", function() {
+        var img = document.createElement("img");
+        img.src = "cart.jpg";
+        img.onload = function() {
+          var canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          var dataURL = canvas.toDataURL();
+          Utils.makeSquareThumbnail(dataURL, 32, function(tDataURL) {
+            var thumbnail = document.createElement("img");
+            thumbnail.src = tDataURL;
+            thumbnail.onload = function() {
+              equal(thumbnail.width, 32);
+              equal(thumbnail.height, 32);
+              start();
+            };
+          });
+        };
+      });
+    })();
     
     (function() {
       var store;

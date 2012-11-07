@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Square Thumbnail Test</title>
+<h1>Square Thumbnail Test</h1>
+<h2>Original Image</h2>
+<img id="cart" src="cart.jpg">
+<h2>Square Thumbnail</h2>
+<script src="../utils.js"></script>
+<script>
+function log(msg) {
+  if (window.console)
+    console.log(msg);
+}
+
+onload = function() {
+  var img = document.getElementById("cart");
+  var canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  var dataURL = canvas.toDataURL();
+  log("original image data URL length: " + dataURL.length);
+  Utils.makeSquareThumbnail(dataURL, 32, function(thumbnailDataURL) {
+    var thumbnail = document.createElement("img");
+    thumbnail.src = thumbnailDataURL;
+    document.body.appendChild(thumbnail);
+    log("thumbnail image data URL length: " + thumbnailDataURL.length);
+  });
+};
+</script>
