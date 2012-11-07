@@ -15,53 +15,98 @@
   <input type="file" id="input-file">
   <button type="submit" style="display: none">Add Picture</button>
 </form>
+<button id="wipe">Reset this App</button>
 <script src="vendor/IndexedDBShim.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
+<script src="vendor/spin.min.js"></script>
+<script src="vendor/exif.js"></script>
 <script src="icongrid/base32.js"></script>
 <script src="icongrid/icongrid.js"></script>
 <script src="data-uri-store.js"></script>
+<script src="utils.js"></script>
+<script src="model.js"></script>
 <script>
+var NAME = "msm";
+
+var spinner = new Spinner();
+var model;
+var grid;
+
+$("#wipe").click(function() {
+  spinner.spin(document.body);
+  model.done();
+  MSM_Model.wipe(NAME, function(err) {
+    spinner.stop();
+    if (err)
+      return alert("ERROR " + err);
+    window.location.reload();
+  });
+});
+
 $("#input-file").change(function() {
   $("form").submit();
 });
 
 $("form").submit(function() {
-  resizeAndUploadImage($("#input-file")[0].files[0]);
+  var files = $("#input-file")[0].files;
+  var remaining = files.length;
+  
+  if (remaining) spinner.spin(document.body);
+  
+  [].slice.call(files).forEach(function(file) {
+    model.addImage(file, function(err, id) {
+      if (--remaining == 0) spinner.stop();
+      if (err)
+        return alert("ERROR " + err);
+      var metadata = model.getState().images[id];
+      grid.addItemToGrid(id.toString(), metadata);
+    });
+  });
+
   return false;
 });
 
-function resizeAndUploadImage(file) {
-  var reader = new FileReader();
-  reader.onload = function(event) {
-    var dataURI = event.target.result;
-    console.log("data is " + dataURI.length + " characters");
-  };
-  console.log("starting to read...");
-  reader.readAsDataURL(file);
-}
-
-$(window).ready(function() {
+function initUI() {
+  var state = model.getState();
   var dataSource = {
     getItemList: function(callback) {
-      callback({
-        apple: {
-          itemTitle: "Apple",
-          itemImgURL: "http://mozilla.github.com/icongrid/images/apple.png"
-        }
-      });
+      callback(state.images);
     },
     openItem: function(itemID) {
       
     },
     userRemovedItem: function(itemID, callback) {
       
+    },
+    getItemTitle: function(itemID) {
+      return "Pic " + itemID;
     }
   };
   var gridDiv = $("#grid");
   var layout = new GridLayout(gridDiv.width(), gridDiv.height(), 3, 3);
-  var grid = new IconGrid("grid", gridDiv, dataSource, layout);
+  
+  grid = new IconGrid(NAME + "_grid", gridDiv, dataSource, layout);
   
   grid.initialize();
   grid.refresh();
+  
+  //var state = grid.loadIconGridState(grid.dashname);
+  //console.log(state);
+  //window.grid = grid;
+}
+
+$(window).ready(function() {
+  spinner.spin(document.body);
+  
+  model = new MSM_Model({
+    name: NAME,
+    onready: function() {
+      spinner.stop();
+      initUI();
+    },
+    onerror: function(name, e) {
+      alert("ERROR " + name);
+    }
+  });
 });
 </script>
