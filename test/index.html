@@ -19,8 +19,68 @@
     <script src="../vendor/exif.js"></script>
     <script src="../data-uri-store.js"></script>
     <script src="../utils.js"></script>
+    <script src="../model.js"></script>
     <script>
     QUnit.config.testTimeout = 5000;
+    
+    (function() {
+      var model;
+      
+      module("model", {
+        setup: function() {
+          stop();
+          DataURIStore.destroy("mtest_images", function(err) {
+            if (err)
+              return ok(false, err);
+            delete localStorage['mtest_state'];
+            model = null;
+            start();
+          });
+        },
+        teardown: function() {
+          if (model)
+            model.done();
+        }
+      });
+      
+      function modelTest(name, onready) {
+        asyncTest(name, function() {
+          model = new MSM_Model({
+            name: "mtest",
+            onready: onready
+          });
+        });
+      }
+      
+      modelTest("calls onready handler", function() {
+        ok(true, "onready is called");
+        ok(model === this, "this is model");
+        start();
+      });
+      
+      modelTest("getState() returns state", function() {
+        deepEqual(this.getState(), {images: {}}, "works once");
+        deepEqual(this.getState(), {images: {}}, "works twice");
+        start();
+      });
+      
+      modelTest("stores images w/ metadata", function() {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'cart.jpg');
+        req.responseType = 'blob';
+        req.onload = function() {
+          model.addImage(req.response, function(err, id) {
+            var metadata = model.getState().images[id];
+            equal(metadata.itemImgURL.indexOf("data:image/"), 0,
+                  "itemImgURL is valid");
+            equal(metadata.orientation, 6, "orientation is correct");
+            // TODO: Fetch full data URL.
+            start();
+          });
+        };
+        req.send(null);
+      });
+    })();
     
     (function() {
       module("utils");
