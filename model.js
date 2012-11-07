@@ -65,7 +65,7 @@ function MSM_Model(options) {
   };
   
   self.getImage = function(id, cb) {
-    store.get(id, function(err, dataURL) {
+    store.get(parseInt(id), function(err, dataURL) {
       if (err)
         return cb(err);
       if (!dataURL)
