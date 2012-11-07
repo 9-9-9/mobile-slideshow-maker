@@ -16,7 +16,10 @@ var Utils = {
   },
   getExifInfo: function(arrayBuffer) {
     var oFile = new this.ArrayBufferBinaryFile(arrayBuffer);
-    return EXIF.readFromBinaryFile(oFile);
+    var exif = EXIF.readFromBinaryFile(oFile);
+    if (exif === false)
+      exif = null;
+    return exif;
   },
   ArrayBufferBinaryFile: function ArrayBufferBinaryFile(buffer) {
     var dataView = new DataView(buffer);

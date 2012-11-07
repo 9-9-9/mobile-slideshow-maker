@@ -24,8 +24,19 @@
     
     (function() {
       module("utils");
+
+      asyncTest("getExifInfo() returns null if no EXIF info", function() {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'apple.png');
+        req.responseType = 'arraybuffer';
+        req.onload = function() {
+          ok(Utils.getExifInfo(req.response) === null);
+          start();
+        };
+        req.send(null);
+      });
       
-      asyncTest("getExifInfo() works", function() {
+      asyncTest("getExifInfo() returns blob of EXIF info", function() {
         var req = new XMLHttpRequest();
         req.open('GET', 'cart.jpg');
         req.responseType = 'arraybuffer';
