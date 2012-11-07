@@ -15,6 +15,7 @@
   <input type="file" id="input-file">
   <button type="submit" style="display: none">Add Picture</button>
 </form>
+<button id="export">Export to Thimble</button>
 <button id="wipe">Reset this App</button>
 <script src="vendor/IndexedDBShim.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
@@ -27,10 +28,101 @@
 <script src="model.js"></script>
 <script>
 var NAME = "msm";
+var IMG_PUB_URL = "http://thimble-mobile-concept-img-uploader.toolness.org";
+var IMG_PUB_PASSKEY = "thimbley";
 
 var spinner = new Spinner();
 var model;
 var grid;
+
+function publishOneImage(file, progressCb, cb) {
+  var req = new XMLHttpRequest();
+  var url = IMG_PUB_URL + '/upload?cacheBust=' + Date.now();
+  var passkey = IMG_PUB_PASSKEY;
+  req.onload = function() {
+    if (req.status == 403) {
+      console.log('bad passkey');
+      cb(null);
+    } else if (req.status == 200) {
+      var entry = JSON.parse(req.responseText);
+      entry.type = file.type;
+      cb(entry);
+    } else {
+      cb(null);
+    }
+  };
+  req.onerror = function() {
+    cb(null);
+  };
+  if (req.upload) {
+    req.upload.addEventListener("progress", function(evt) {
+      if (evt.lengthComputable)
+        progressCb(evt.loaded / evt.total);
+    }, false);
+  }
+  req.open('POST', url);
+  req.setRequestHeader('X-Creation-Key', passkey);
+  req.setRequestHeader('Content-Type', file.type);
+  req.send(file);
+}
+
+function publishImages(options) {
+  var onerror = options.onerror;
+  var onprogress = options.onprogress;
+  var oncomplete = options.oncomplete;
+  var images = model.getMetadata();
+  var imageIDs = Object.keys(images);
+  var imageCount = imageIDs.length;
+  var progressPerImage = 1 / imageCount;
+  var toPublish = imageIDs.map(function(id) { return images[id] });
+  
+  function uploadNextImage() {
+    if (!toPublish.length)
+      return oncomplete();
+    
+    var baseProgress = (imageCount - toPublish.length) / imageCount;
+    var metadata = toPublish.pop();
+    var id = metadata.id;
+    
+    if (metadata.publishedURL) {
+      onprogress(baseProgress + progressPerImage);
+      return setTimeout(uploadNextImage, 100);
+    }
+    
+    model.getImage(id, function(err, file) {
+      if (err)
+        onerror("Failed to upload picture " + id, err);
+      if (!file)
+        onerror("Picture " + id + " not in store");
+      
+      publishOneImage(file, function(percentDone) {
+        onprogress(baseProgress + progressPerImage * percentDone);
+      }, function(entry) {
+        var images = model.getMetadata();
+        images[id].publishedURL = entry.url;
+        images[id].publishedRevocationKey = entry.revocationKey;
+        model.setMetadata(images);
+        uploadNextImage();
+      });
+    });
+  }
+  
+  uploadNextImage();
+}
+
+$("#export").click(function() {
+  publishImages({
+    onerror: function(msg, err) {
+      alert(msg);
+    },
+    onprogress: function(percentDone) {
+      console.log("PROGRESS", percentDone);
+    },
+    oncomplete: function() {
+      console.log("ALL DONE");
+    }
+  });
+});
 
 $("#wipe").click(function() {
   spinner.spin(document.body);
