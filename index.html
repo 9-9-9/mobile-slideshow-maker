@@ -39,6 +39,7 @@ $("#wipe").click(function() {
     spinner.stop();
     if (err)
       return alert("ERROR " + err);
+    delete window.localStorage[NAME + "_grid"];
     window.location.reload();
   });
 });
