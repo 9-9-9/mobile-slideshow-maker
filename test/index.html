@@ -64,6 +64,18 @@
         start();
       });
       
+      modelTest("rejects adding non-images", function() {
+        model.addImage(new Blob([1]), function(err, id) {
+          equal(err, "FILE_IS_NOT_IMAGE", "blob w/o type is rejected");
+          model.addImage(new Blob([1], {
+            type: "text/plain"
+          }), function(err, id) {
+            equal(err, "FILE_IS_NOT_IMAGE", "text/plain blob is rejected");
+            start();
+          });
+        });
+      });
+      
       modelTest("stores images w/ metadata", function() {
         var req = new XMLHttpRequest();
         req.open('GET', 'cart.jpg');

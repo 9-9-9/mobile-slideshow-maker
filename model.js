@@ -59,6 +59,8 @@ function MSM_Model(options) {
   };
   
   self.addImage = function(file, cb) {
+    if (file.type.indexOf("image/") != 0)
+      return cb("FILE_IS_NOT_IMAGE");
     var metadata = {};
     fillExifMetadata(file, metadata, function(err) {
       if (err)
