@@ -93,3 +93,12 @@ function MSM_Model(options) {
   
   return self;
 }
+
+MSM_Model.wipe = function(name, cb) {
+  DataURIStore.destroy(name + "_images", function(err) {
+    if (err)
+      return cb("error destroying data store");
+    delete localStorage[name + '_state'];
+    cb(null);
+  });
+};

@@ -29,10 +29,9 @@
       module("model", {
         setup: function() {
           stop();
-          DataURIStore.destroy("mtest_images", function(err) {
+          MSM_Model.wipe("mtest", function(err) {
             if (err)
               return ok(false, err);
-            delete localStorage['mtest_state'];
             model = null;
             start();
           });
