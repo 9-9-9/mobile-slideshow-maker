@@ -67,9 +67,11 @@
       modelTest("stores images w/ metadata", function() {
         var req = new XMLHttpRequest();
         req.open('GET', 'cart.jpg');
-        req.responseType = 'blob';
+        // We would use responseType == 'blob', but safari doesn't support it.
+        req.responseType = 'arraybuffer';
         req.onload = function() {
-          model.addImage(req.response, function(err, id) {
+          var blob = new Blob([req.response], {type: "image/jpeg"});
+          model.addImage(blob, function(err, id) {
             var metadata = model.getState().images[id];
             equal(metadata.itemImgURL.indexOf("data:image/"), 0,
                   "itemImgURL is valid");
