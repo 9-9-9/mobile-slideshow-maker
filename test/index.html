@@ -56,6 +56,13 @@
         ok(model === this, "this is model");
         start();
       });
+
+      modelTest("getImage() returns null if no img", function() {
+        model.getImage(35, function(err, file) {
+          ok(err === null && file === null);
+          start();
+        });
+      });
       
       modelTest("getState() returns state", function() {
         deepEqual(this.getState(), {images: {}}, "works once");
@@ -83,13 +90,17 @@
         req.onload = function() {
           var blob = new Blob([req.response], {type: "image/jpeg"});
           model.addImage(blob, function(err, id) {
+            ok(!err);
             var metadata = model.getState().images[id];
             equal(metadata.id, id, "id is correct");
             equal(metadata.itemImgURL.indexOf("data:image/"), 0,
                   "itemImgURL is valid");
             equal(metadata.orientation, 6, "orientation is correct");
-            // TODO: Fetch full data URL.
-            start();
+            model.getImage(id, function(err, file) {
+              ok(!err);
+              equal(file.type, "image/jpeg");
+              start();
+            });
           });
         };
         req.send(null);

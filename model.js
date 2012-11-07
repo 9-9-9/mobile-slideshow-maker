@@ -58,6 +58,16 @@ function MSM_Model(options) {
     return loadState();
   };
   
+  self.getImage = function(id, cb) {
+    store.get(id, function(err, dataURL) {
+      if (err)
+        return cb(err);
+      if (!dataURL)
+        return cb(null, null);
+      return cb(null, Utils.dataURLtoBlob(dataURL));
+    });
+  };
+  
   self.addImage = function(file, cb) {
     if (file.type.indexOf("image/") != 0)
       return cb("FILE_IS_NOT_IMAGE");
