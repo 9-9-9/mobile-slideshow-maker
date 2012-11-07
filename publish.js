@@ -44,19 +44,21 @@
     var toPublish = imageIDs.map(function(id) { return images[id] });
   
     function uploadNextImage() {
-      if (!toPublish.length)
+      if (!toPublish.length) {
+        onprogress(1);
         return oncomplete();
-    
+      }
+      
       var baseProgress = (imageCount - toPublish.length) / imageCount;
       var metadata = toPublish.pop();
       var id = metadata.id;
     
       if (metadata.publishedURL) {
-        onprogress(baseProgress + progressPerImage);
+        onprogress(baseProgress + progressPerImage, id);
         return setTimeout(uploadNextImage, 100);
       }
 
-      onprogress(baseProgress);
+      onprogress(baseProgress, id);
       model.getImage(id, function(err, file) {
         if (err)
           onerror("Failed to upload picture " + id, err);
@@ -64,7 +66,7 @@
           onerror("Picture " + id + " not in store");
       
         publishOneImage(baseURL, passkey, file, function(percentDone) {
-          onprogress(baseProgress + progressPerImage * percentDone);
+          onprogress(baseProgress + progressPerImage * percentDone, id);
         }, function(entry) {
           var images = model.getMetadata();
           images[id].publishedURL = entry.url;

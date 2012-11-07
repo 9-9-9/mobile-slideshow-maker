@@ -3,10 +3,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <link rel="stylesheet" href="icongrid/icongrid.css">
 <style>
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
 #grid {
   width: 300px;
   height: 300px;
   border: 1px solid black;
+}
+
+#publishing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 16px;
+}
+
+#publishing aside {
+  color: gray;
+}
+
+#publishing aside:after {
+  content: '\2026 ';
+}
+
+#publishing progress {
+  width: 100%;
 }
 </style>
 <title>Hello</title>
@@ -17,6 +44,10 @@
 </form>
 <button id="export">Publish to Thimble</button>
 <button id="wipe">Reset this App</button>
+<div id="publishing" style="display: none">
+  <progress max="1000"></progress>
+  <aside></aside>
+</div>
 <script src="vendor/IndexedDBShim.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
 <script src="vendor/spin.min.js"></script>
@@ -35,8 +66,24 @@ var IMG_PUB_PASSKEY = "thimbley";
 var spinner = new Spinner();
 var model;
 var grid;
+var dataSource = {
+  getItemList: function(callback) {
+    callback(model.getMetadata());
+  },
+  openItem: function(itemID) {},
+  userRemovedItem: function(itemID, callback) {
+    alert("removing items is not yet supported");
+  },
+  getItemTitle: function(itemID) {
+    return "Pic " + itemID;
+  }
+};
 
 $("#export").click(function() {
+  var panel = $("#publishing").show();
+  var aside = $("aside", panel).text("Reticulating splines");
+  var progress = $("progress", panel).attr("value", "0");
+  var imageProgressPart = 0.9;
   publishImages({
     model: model,
     baseURL: IMG_PUB_URL,
@@ -44,11 +91,14 @@ $("#export").click(function() {
     onerror: function(msg, err) {
       alert(msg);
     },
-    onprogress: function(percentDone) {
-      console.log("PROGRESS", percentDone);
+    onprogress: function(percentDone, id) {
+      var totalPercent = percentDone * imageProgressPart;
+      progress.attr("value", Math.floor(totalPercent * 1000).toString());
+      if (id !== undefined)
+        aside.text("Publishing " + dataSource.getItemTitle(id));
     },
     oncomplete: function() {
-      console.log("ALL DONE");
+      aside.text("Publishing HTML");
     }
   });
 });
@@ -89,18 +139,6 @@ $("form").submit(function() {
 });
 
 function initUI() {
-  var dataSource = {
-    getItemList: function(callback) {
-      callback(model.getMetadata());
-    },
-    openItem: function(itemID) {},
-    userRemovedItem: function(itemID, callback) {
-      alert("removing items is not yet supported");
-    },
-    getItemTitle: function(itemID) {
-      return "Pic " + itemID;
-    }
-  };
   var gridDiv = $("#grid");
   var layout = new GridLayout(gridDiv.width(), gridDiv.height(), 3, 3);
   
