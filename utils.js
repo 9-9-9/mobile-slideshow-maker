@@ -14,6 +14,26 @@ var Utils = {
       callback(canvas.toDataURL());
     };
   },
+  // http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+  dataURLtoBlob: function(dataURI) {
+    // doesn't handle URLEncoded DataURIs
+    var parts = dataURI.match(/^data:([^;]+);base64,(.+)/);
+
+    if (!parts)
+      return null;
+
+    var byteString = atob(parts[2]);
+    var mimeString = parts[1];
+
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++)
+      ia[i] = byteString.charCodeAt(i);
+
+    // write the ArrayBuffer to a blob, and you're done
+    return new Blob([ab], {type: mimeString});
+  },
   getExifInfo: function(arrayBuffer) {
     var oFile = new this.ArrayBufferBinaryFile(arrayBuffer);
     var exif = EXIF.readFromBinaryFile(oFile);

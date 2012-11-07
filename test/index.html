@@ -99,6 +99,18 @@
     (function() {
       module("utils");
 
+      asyncTest("dataURLtoBlob() works", function() {
+        var dataURL = "data:text/plain;base64," + btoa("hi");
+        var blob = Utils.dataURLtoBlob(dataURL);
+        equal(blob.type, "text/plain");
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          equal(dataURL, event.target.result);
+          start();
+        };
+        reader.readAsDataURL(blob);
+      });
+      
       asyncTest("getExifInfo() returns null if no EXIF info", function() {
         var req = new XMLHttpRequest();
         req.open('GET', 'apple.png');
