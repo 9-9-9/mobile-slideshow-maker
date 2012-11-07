@@ -64,9 +64,13 @@
         });
       });
       
-      modelTest("getMetadata() returns metadata", function() {
-        deepEqual(this.getMetadata(), {}, "works once");
-        deepEqual(this.getMetadata(), {}, "works twice");
+      modelTest("get/setMetadata() work", function() {
+        deepEqual(this.getMetadata(), {}, "get works");
+        var newState = {1: {foo: 1}};
+        this.setMetadata(newState);
+        // Make sure the retrieved state is a copy, not a reference.
+        newState[1].foo = 5;
+        deepEqual(this.getMetadata(), {1: {foo: 1}}, "setMetadata works");
         start();
       });
       

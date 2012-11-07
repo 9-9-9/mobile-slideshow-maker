@@ -54,6 +54,12 @@ function MSM_Model(options) {
     });
   }
 
+  self.setMetadata = function(images) {
+    var state = loadState();
+    state.images = images;
+    saveState(state);
+  };
+  
   self.getMetadata = function() {
     return loadState().images;
   };
