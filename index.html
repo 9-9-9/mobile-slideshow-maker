@@ -94,6 +94,10 @@ function absolutify(url) {
 
 function makeSlideshowHTML(cb) {
   var images = model.getMetadata();
+
+  // Update the icon grid state.
+  grid.refresh();
+
   var pages = grid.loadIconGridState(grid.dashname).pages;
   
   $.get("dzslides/template.html", function(html) {
