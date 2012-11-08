@@ -114,12 +114,10 @@ function makeSlideshowHTML(cb) {
           return;
         var id = grid.gItems[guid].id;
         var metadata = images[id];
-        var imgURL = metadata.publishedURL;
-        var orient = metadata.orientation;
         sections.push([
           '<section>',
           '  <figure>',
-          '    <img src="' + imgURL + '" class="orient-' + orient + '">',
+          '    <img src="' + metadata.publishedURL + '">',
           '  </figure>',
           '</section>',
         ].join('\n'));
