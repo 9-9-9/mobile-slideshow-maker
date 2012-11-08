@@ -14,6 +14,18 @@ var Utils = {
       callback(canvas.toDataURL());
     };
   },
+  megapixelize: function(file, orientation, cb) {
+    var mpi = new MegaPixImage(file);
+    var newImage = new Image();
+    mpi.onrender = function(newImage) {
+      cb(Utils.dataURLtoBlob(newImage.src));
+    };
+    mpi.render(newImage, {
+      orientation: orientation,
+      maxWidth: 1024,
+      maxHeight: 1024
+    });
+  },
   // http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
   dataURLtoBlob: function(dataURI) {
     // doesn't handle URLEncoded DataURIs

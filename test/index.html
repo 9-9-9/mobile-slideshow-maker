@@ -17,6 +17,7 @@
     <script src="qunit.js"></script>
     <script src="../vendor/IndexedDBShim.min.js"></script>
     <script src="../vendor/exif.js"></script>
+    <script src="../vendor/megapix-image.js"></script>
     <script src="../data-uri-store.js"></script>
     <script src="../utils.js"></script>
     <script src="../model.js"></script>
@@ -114,6 +115,30 @@
     (function() {
       module("utils");
 
+      asyncTest("megapixelize() re-orients images", function() {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'cart.jpg');
+        // We would use responseType == 'blob', but safari doesn't support it.
+        req.responseType = 'arraybuffer';
+        req.onload = function() {
+          var blob = new Blob([req.response], {type: "image/jpeg"});
+          Utils.megapixelize(blob, 6, function(file) {
+            var reader = new FileReader();
+            reader.onload = function(event) {
+              var img = new Image();
+              img.onload = function() {
+                ok(img.naturalWidth < img.naturalHeight,
+                   "image is now rotated");
+                start();
+              };
+              img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        };
+        req.send(null);
+      });
+      
       asyncTest("dataURLtoBlob() works", function() {
         var dataURL = "data:text/plain;base64," + btoa("hi");
         var blob = Utils.dataURLtoBlob(dataURL);
