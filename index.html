@@ -46,7 +46,7 @@
 <button id="export">Publish to Thimble</button>
 <button id="wipe">Reset this App</button>
 <div id="publishing" style="display: none">
-  <progress value="0" max="1000"></progress>
+  <progress value="0" max="1000">0%</progress>
   <aside>Reticulating splines</aside>
   <div class="success" style="display: none">
     <h2>Great Success!</h2>
@@ -145,7 +145,8 @@ $("#export").click(function() {
     },
     onprogress: function(percentDone, id) {
       var totalPercent = percentDone * imageProgressPart;
-      progress.attr("value", Math.floor(totalPercent * 1000).toString());
+      progress.attr("value", Math.floor(totalPercent * 1000).toString())
+        .text(Math.floor(totalPercent * 100).toFixed() + '%');
       if (id !== undefined)
         aside.text("Publishing " + dataSource.getItemTitle(id));
     },
@@ -157,7 +158,7 @@ $("#export").click(function() {
         window.publishHTML(HACKPUB_URL, html, function(err, info) {
           if (err)
             return alert("publish error " + err);
-          progress.attr("value", "1000");
+          progress.attr("value", "1000").text("100%");
           aside.hide();
           success.fadeIn();
           var remixURL = absolutify(FRIENDLYCODE_URL) + "#" + info.path;
