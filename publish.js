@@ -78,5 +78,25 @@
     }
   
     uploadNextImage();
-  }
+  };
+  
+  window.publishHTML = function publishHTML(hackpubURL, html, cb) {
+    $.ajax({
+      type: "POST",
+      url: hackpubURL + "/publish",
+      data: {
+        'html': html,
+        'original-url': window.location.href
+      },
+      dataType: 'json',
+      error: function(req) {
+        cb(req);
+      },
+      success: function(result) {
+        var url = result['published-url'];
+        var path = '/' + url.match(/\/([A-Za-z0-9]+)$/)[1];
+        cb(null, {path: path, url: url});
+      }
+    });
+  };
 })();

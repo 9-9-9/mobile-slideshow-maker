@@ -45,8 +45,13 @@
 <button id="export">Publish to Thimble</button>
 <button id="wipe">Reset this App</button>
 <div id="publishing" style="display: none">
-  <progress max="1000"></progress>
-  <aside></aside>
+  <progress value="0" max="1000"></progress>
+  <aside>Reticulating splines</aside>
+  <div class="success" style="display: none">
+    <h2>Great Success!</h2>
+    <p>Your slideshow has been published to <a class="view" target="_blank" href="#">http://foo/</a>.</p>
+    <p>You can also <a class="remix" target="_blank" href="#">remix your slideshow</a>.</p>
+  </div>
 </div>
 <script src="vendor/IndexedDBShim.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
@@ -62,6 +67,9 @@
 var NAME = "msm";
 var IMG_PUB_URL = "http://thimble-mobile-concept-img-uploader.toolness.org";
 var IMG_PUB_PASSKEY = "thimbley";
+var HACKPUB_URL = "http://hackpub.hackasaurus.org";
+var FRIENDLYCODE_URL = "http://mozilla.github.com/friendlycode/" +
+                       "examples/alternate-publisher.html";
 
 var spinner = new Spinner();
 var model;
@@ -80,9 +88,10 @@ var dataSource = {
 };
 
 $("#export").click(function() {
-  var panel = $("#publishing").show();
-  var aside = $("aside", panel).text("Reticulating splines");
-  var progress = $("progress", panel).attr("value", "0");
+  var panel = $("#publishing").slideDown();
+  var aside = $("aside", panel);
+  var progress = $("progress", panel);
+  var success = $(".success", panel);
   var imageProgressPart = 0.9;
   publishImages({
     model: model,
@@ -99,6 +108,16 @@ $("#export").click(function() {
     },
     oncomplete: function() {
       aside.text("Publishing HTML");
+      var html = "<p>testing yo.</p>";
+      window.publishHTML(HACKPUB_URL, html, function(err, info) {
+        if (err)
+          return alert("publish error " + err);
+        aside.hide();
+        success.fadeIn();
+        var remixURL = FRIENDLYCODE_URL + "#" + info.path;
+        $("a.view", success).attr("href", info.url).text(info.url);
+        $("a.remix", success).attr("href", remixURL);
+      });
     }
   });
 });
