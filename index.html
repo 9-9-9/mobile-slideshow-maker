@@ -68,8 +68,7 @@ var NAME = "msm";
 var IMG_PUB_URL = "http://thimble-mobile-concept-img-uploader.toolness.org";
 var IMG_PUB_PASSKEY = "thimbley";
 var HACKPUB_URL = "http://hackpub.hackasaurus.org";
-var FRIENDLYCODE_URL = "http://mozilla.github.com/friendlycode/" +
-                       "examples/alternate-publisher.html";
+var FRIENDLYCODE_URL = "remix.html";
 
 var spinner = new Spinner();
 var model;
@@ -158,7 +157,7 @@ $("#export").click(function() {
           progress.attr("value", "1000");
           aside.hide();
           success.fadeIn();
-          var remixURL = FRIENDLYCODE_URL + "#" + info.path;
+          var remixURL = absolutify(FRIENDLYCODE_URL) + "#" + info.path;
           $("a.view", success).attr("href", info.url).text(info.url);
           $("a.remix", success).attr("href", remixURL);
         });
