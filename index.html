@@ -70,6 +70,7 @@ var IMG_PUB_URL = "http://thimble-mobile-concept-img-uploader.toolness.org";
 var IMG_PUB_PASSKEY = "thimbley";
 var HACKPUB_URL = "http://hackpub.hackasaurus.org";
 var FRIENDLYCODE_URL = "remix.html";
+var THUMBNAIL_SIZE = 32;
 
 var spinner = new Spinner();
 var model;
@@ -217,6 +218,7 @@ $(window).ready(function() {
   
   model = new MSM_Model({
     name: NAME,
+    thumbnailSize: THUMBNAIL_SIZE,
     onready: function() {
       spinner.stop();
       initUI();
