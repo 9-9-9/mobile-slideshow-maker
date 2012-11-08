@@ -81,9 +81,7 @@ function MSM_Model(options) {
     fillExifMetadata(file, metadata, function(err) {
       if (err)
         return cb(err);
-      var reader = new FileReader();
-      reader.onload = function(event) {
-        var dataURL = event.target.result;
+      Utils.megapixelize(file, metadata.orientation, function(dataURL) {
         Utils.makeSquareThumbnail(dataURL, thumbnailSize, function(tDataURL) {
           metadata.itemImgURL = tDataURL;
           store.put(dataURL, function(err, id) {
@@ -96,8 +94,7 @@ function MSM_Model(options) {
             cb(null, id);
           });
         });
-      };
-      reader.readAsDataURL(file);
+      });
     });
   };
   

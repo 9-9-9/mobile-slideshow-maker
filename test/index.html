@@ -115,6 +115,15 @@
     (function() {
       module("utils");
 
+      asyncTest("megapixelize() passes through PNGs", function() {
+        var dataURL = "data:image/png;base64," + btoa("hi");
+        var file = Utils.dataURLtoBlob(dataURL);
+        Utils.megapixelize(file, 0, function(aDataURL) {
+          equal(dataURL, aDataURL);
+          start();
+        });
+      });
+
       asyncTest("megapixelize() re-orients images", function() {
         var req = new XMLHttpRequest();
         req.open('GET', 'cart.jpg');
