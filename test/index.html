@@ -122,18 +122,14 @@
         req.responseType = 'arraybuffer';
         req.onload = function() {
           var blob = new Blob([req.response], {type: "image/jpeg"});
-          Utils.megapixelize(blob, 6, function(file) {
-            var reader = new FileReader();
-            reader.onload = function(event) {
-              var img = new Image();
-              img.onload = function() {
-                ok(img.naturalWidth < img.naturalHeight,
-                   "image is now rotated");
-                start();
-              };
-              img.src = event.target.result;
+          Utils.megapixelize(blob, 6, function(dataURL) {
+            var img = new Image();
+            img.onload = function() {
+              ok(img.naturalWidth < img.naturalHeight,
+                 "image is now rotated");
+              start();
             };
-            reader.readAsDataURL(file);
+            img.src = dataURL;
           });
         };
         req.send(null);

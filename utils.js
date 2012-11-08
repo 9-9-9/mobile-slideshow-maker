@@ -18,7 +18,7 @@ var Utils = {
     var mpi = new MegaPixImage(file);
     var newImage = new Image();
     mpi.onrender = function(newImage) {
-      cb(Utils.dataURLtoBlob(newImage.src));
+      cb(newImage.src);
     };
     mpi.render(newImage, {
       orientation: orientation,
