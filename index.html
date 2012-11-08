@@ -87,6 +87,37 @@ var dataSource = {
   }
 };
 
+function makeSlideshowHTML(cb) {
+  var images = model.getMetadata();
+  var pages = grid.loadIconGridState(grid.dashname).pages;
+  
+  $.get("dzslides.html", function(html) {
+    var intro = html.slice(0, html.indexOf("<section>"));
+    var outro = html.slice(html.lastIndexOf("</section>") + 10);
+    var sections = [];
+    
+    pages.forEach(function(page) {
+      page.forEach(function(guid) {
+        if (guid === null)
+          return;
+        var id = grid.gItems[guid].id;
+        var metadata = images[id];
+        var imgURL = metadata.publishedURL;
+        var orient = metadata.orientation;
+        sections.push([
+          '<section>',
+          '  <figure>',
+          '    <img src="' + imgURL + '" class="orient-' + orient + '">',
+          '  </figure>',
+          '</section>',
+        ].join('\n'));
+      });
+    });
+    
+    cb(null, intro + sections.join('\n\n') + outro);
+  }, 'text');
+}
+
 $("#export").click(function() {
   var panel = $("#publishing").slideDown();
   var aside = $("aside", panel);
@@ -108,15 +139,18 @@ $("#export").click(function() {
     },
     oncomplete: function() {
       aside.text("Publishing HTML");
-      var html = "<p>testing yo.</p>";
-      window.publishHTML(HACKPUB_URL, html, function(err, info) {
+      makeSlideshowHTML(function(err, html) {
         if (err)
-          return alert("publish error " + err);
-        aside.hide();
-        success.fadeIn();
-        var remixURL = FRIENDLYCODE_URL + "#" + info.path;
-        $("a.view", success).attr("href", info.url).text(info.url);
-        $("a.remix", success).attr("href", remixURL);
+          return alert("error making slideshow: " + err);
+        window.publishHTML(HACKPUB_URL, html, function(err, info) {
+          if (err)
+            return alert("publish error " + err);
+          aside.hide();
+          success.fadeIn();
+          var remixURL = FRIENDLYCODE_URL + "#" + info.path;
+          $("a.view", success).attr("href", info.url).text(info.url);
+          $("a.remix", success).attr("href", remixURL);
+        });
       });
     }
   });
@@ -165,10 +199,6 @@ function initUI() {
   
   grid.initialize();
   grid.refresh();
-  
-  //var state = grid.loadIconGridState(grid.dashname);
-  //console.log(state);
-  //window.grid = grid;
 }
 
 $(window).ready(function() {
