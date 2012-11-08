@@ -87,13 +87,23 @@ var dataSource = {
   }
 };
 
+function absolutify(url) {
+  var a = document.createElement('a');
+  a.setAttribute("href", url);
+  return a.href;
+}
+
 function makeSlideshowHTML(cb) {
   var images = model.getMetadata();
   var pages = grid.loadIconGridState(grid.dashname).pages;
   
-  $.get("dzslides.html", function(html) {
+  $.get("dzslides/template.html", function(html) {
+    html = html.replace("core.css", absolutify("dzslides/core.css"))
+      .replace("core.js", absolutify("dzslides/core.js"));
+    
     var intro = html.slice(0, html.indexOf("<section>"));
-    var outro = html.slice(html.lastIndexOf("</section>") + 10);
+    var outro = html.slice(html.lastIndexOf("</section>") +
+                           "</section>".length);
     var sections = [];
     
     pages.forEach(function(page) {
@@ -145,6 +155,7 @@ $("#export").click(function() {
         window.publishHTML(HACKPUB_URL, html, function(err, info) {
           if (err)
             return alert("publish error " + err);
+          progress.attr("value", "1000");
           aside.hide();
           success.fadeIn();
           var remixURL = FRIENDLYCODE_URL + "#" + info.path;
