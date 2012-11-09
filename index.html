@@ -196,6 +196,9 @@ $("#export").click(function() {
 });
 
 $("#wipe").click(function() {
+  if (!window.confirm("Are you sure you want to reset the app? Any " +
+                      "unpublished pictures will be deleted."))
+    return;
   spinner.spin(document.body);
   model.done();
   MSM_Model.wipe(NAME, function(err) {
