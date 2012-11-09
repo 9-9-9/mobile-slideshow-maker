@@ -46,10 +46,11 @@
 <div id="primary" class="container">
   <div class="dashboardclipper" id="grid"></div>
   <form>
-    <input type="file" id="input-file">
+    <input type="file" id="input-file" style="display: none">
     <button type="submit" style="display: none">Add Picture</button>
   </form>
-  <button id="export" class="btn btn-block btn-large btn-primary">Publish HTML5 Slideshow</button>
+  <button id="photo" class="btn btn-block btn-large">Add Picture</button>
+  <button id="export" class="btn btn-block btn-primary">Publish HTML5 Slideshow</button>
   <button id="wipe" class="btn btn-block">Reset this App</button>
 </div>
 <div id="templates">
@@ -208,6 +209,10 @@ $("#wipe").click(function() {
     delete window.localStorage[NAME + "_grid"];
     window.location.reload();
   });
+});
+
+$("#photo").click(function() {
+  $("#input-file").click();
 });
 
 $("#input-file").change(function() {
