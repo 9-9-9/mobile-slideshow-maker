@@ -82,7 +82,11 @@ var dataSource = {
   },
   openItem: function(itemID) {},
   userRemovedItem: function(itemID, callback) {
-    alert("removing items is not yet supported");
+    model.removeImage(itemID, function(err) {
+      if (err)
+        return alert("ERROR: " + err);
+      callback(itemID);
+    });
   },
   getItemTitle: function(itemID) {
     return "Pic " + itemID;
