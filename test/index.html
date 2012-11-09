@@ -65,6 +65,25 @@
         });
       });
       
+      modelTest("removeImage() works", function() {
+        var req = new XMLHttpRequest();
+        req.open('GET', 'cart.jpg');
+        // We would use responseType == 'blob', but safari doesn't support it.
+        req.responseType = 'arraybuffer';
+        req.onload = function() {
+          var blob = new Blob([req.response], {type: "image/jpeg"});
+          model.addImage(blob, function(err, id) {
+            ok(!err);
+            model.removeImage(id, function(err) {
+              ok(!err);
+              ok(!model.getMetadata()[id]);
+              start();
+            });
+          });
+        };
+        req.send(null);
+      });
+      
       modelTest("get/setMetadata() work", function() {
         deepEqual(this.getMetadata(), {}, "get works");
         var newState = {1: {foo: 1}};

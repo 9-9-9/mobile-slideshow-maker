@@ -64,6 +64,18 @@ function MSM_Model(options) {
     return loadState().images;
   };
   
+  self.removeImage = function(id, cb) {
+    store.delete(parseInt(id), function(err) {
+      if (err)
+        return cb(err);
+
+      var state = loadState();
+      delete state.images[id];
+      saveState(state);
+      cb(null);
+    });
+  };
+  
   self.getImage = function(id, cb) {
     store.get(parseInt(id), function(err, dataURL) {
       if (err)
