@@ -43,7 +43,7 @@
 }
 </style>
 <title>Mobile Slideshow Maker</title>
-<div class="container">
+<div id="primary" class="container">
   <div class="dashboardclipper" id="grid"></div>
   <form>
     <input type="file" id="input-file">
@@ -51,13 +51,22 @@
   </form>
   <button id="export" class="btn btn-block btn-large btn-primary">Publish HTML5 Slideshow</button>
   <button id="wipe" class="btn btn-block">Reset this App</button>
-  <div id="publishing" style="display: none">
-    <progress value="0" max="1000">0%</progress>
-    <aside>Reticulating splines</aside>
-    <div class="success" style="display: none">
-      <h2>Great Success!</h2>
-      <p>Your slideshow has been published to <a class="view" target="_blank" href="#">http://foo/</a>.</p>
-      <p>You can also <a class="remix" target="_blank" href="#">remix your slideshow</a>.</p>
+</div>
+<div id="templates">
+  <div class="publish modal hide fade">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Publishing HTML5 Slideshow</h3>
+    </div>
+    <div class="modal-body">
+      <div class="progress">
+        <div class="bar" style="width: 0%;"></div>
+      </div>
+      <p class="muted"><span class="status">Reticulating splines</span>&hellip;</p>
+      <div class="success" style="display: none">
+        <p>Your slideshow has been published to <a class="view" target="_blank" href="#">http://foo/</a>.</p>
+        <p>You can also <a class="remix" target="_blank" href="#">remix your slideshow</a>.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -66,6 +75,7 @@
 <script src="vendor/spin.min.js"></script>
 <script src="vendor/exif.js"></script>
 <script src="vendor/megapix-image.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
 <script src="icongrid/base32.js"></script>
 <script src="icongrid/icongrid.js"></script>
 <script src="data-uri-store.js"></script>
@@ -139,12 +149,20 @@ function makeSlideshowHTML(cb) {
   }, 'text');
 }
 
+
 $("#export").click(function() {
-  var panel = $("#publishing").slideDown();
-  var aside = $("aside", panel);
-  var progress = $("progress", panel);
-  var success = $(".success", panel);
+  // TODO: We should make sure we remove the modal from the DOM when
+  // the user closes it.
+  function progress(percent) {
+    var percentage = Math.floor(percent * 100).toFixed() + "%";
+    $(".bar", modal).css({width: percentage});
+  }
+  
+  var modal = $("#templates .publish").clone().appendTo("#primary");
+  var aside = $(".muted", modal);
+  var success = $(".success", modal);
   var imageProgressPart = 0.9;
+  modal.modal('show');
   publishImages({
     model: model,
     baseURL: IMG_PUB_URL,
@@ -153,9 +171,7 @@ $("#export").click(function() {
       alert(msg);
     },
     onprogress: function(percentDone, id) {
-      var totalPercent = percentDone * imageProgressPart;
-      progress.attr("value", Math.floor(totalPercent * 1000).toString())
-        .text(Math.floor(totalPercent * 100).toFixed() + '%');
+      progress(percentDone * imageProgressPart);
       if (id !== undefined)
         aside.text("Publishing " + dataSource.getItemTitle(id));
     },
@@ -167,9 +183,9 @@ $("#export").click(function() {
         window.publishHTML(HACKPUB_URL, html, function(err, info) {
           if (err)
             return alert("publish error " + err);
-          progress.attr("value", "1000").text("100%");
-          aside.hide();
-          success.fadeIn();
+          progress(1);
+          aside.slideUp();
+          success.slideDown();
           var remixURL = absolutify(FRIENDLYCODE_URL) + "#" + info.path;
           $("a.view", success).attr("href", info.url).text(info.url);
           $("a.remix", success).attr("href", remixURL);
